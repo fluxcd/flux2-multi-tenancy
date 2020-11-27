@@ -1,0 +1,11 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: podinfo
+  namespace: apps
+spec:
+  chart:
+    spec:
+      version: ">=1.0.0-alpha"
+  values:
+    replicaCount: 1
