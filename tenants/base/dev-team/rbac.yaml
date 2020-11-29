@@ -32,4 +32,4 @@ subjects:
   name: gotk:apps:reconciler
 - kind: ServiceAccount
   name: dev-team
-
+  namespace: apps
