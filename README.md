@@ -61,7 +61,7 @@ A [tenant repository](https://github.com/fluxcd/flux2-multi-tenancy/tree/dev-tea
     └── podinfo-values.yaml
 ```
 
-## How to define tenants
+## Onboard tenants
 
 The Flux CLI offers commands to generate the Kubernetes manifests needed to define tenants.
 
@@ -209,7 +209,7 @@ spec:
 With the above configuration, we ensure that the Kyverno validation webhook will reject `Kustomizations` and 
 `HelmReleases` that don't specify a service account name when deployed in a tenant's namespace.
 
-## Bootstrap staging and production
+## Bootstrap the staging cluster
 
 Install the Flux CLI and fork this repository on your personal GitHub account
 and export your GitHub access token, username and repo name:
@@ -247,12 +247,12 @@ Wait for the staging cluster reconciliation to finish:
 $ watch flux get kustomization
 NAME            	READY  	MESSAGE                                                        	
 flux-system     	True   	Applied revision: main/616001c38e7bc81b00ef2c65ac8cfd58140155b8	
-kyverno         	Unknown	reconciliation in progress
-kyverno-policies	False  	dependency 'flux-system/kyverno' is not ready
-tenants         	False  	dependency 'flux-system/kyverno-policies' is not ready
+kyverno         	Unknown	Reconciliation in progress
+kyverno-policies	False  	Dependency 'flux-system/kyverno' is not ready
+tenants         	False  	Dependency 'flux-system/kyverno-policies' is not ready
 ```
 
-Verify that the tenant repository has been cloned inside the cluster:
+Verify that the tenant Git repository has been cloned:
 
 ```console
 $ flux -n apps get sources git
@@ -260,4 +260,18 @@ NAME    	READY	MESSAGE
 dev-team	True 	Fetched revision: dev-team/ca8ec25405cc03f2f374d2f35f9299d84ced01e4
 ```
 
+Verify that the tenant Helm repository index has been downloaded:
 
+```console
+$ flux -n apps get sources helm
+NAME   	READY	MESSAGE
+podinfo	True 	Fetched revision: 2020-10-28T10:09:58.648748663Z
+```
+
+Wait for the demo app to be installed:
+
+```console
+$ watch flux -n apps get helmreleases
+NAME   	READY	MESSAGE                         	REVISION	SUSPENDED 
+podinfo	True 	Release reconciliation succeeded	5.0.3   	False 
+```
