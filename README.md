@@ -127,6 +127,14 @@ the dev-team repository must contain Kubernetes objects scoped to the `apps` nam
 
 ## Enforce tenant isolation
 
+To enforce tenant isolation, cluster admins should configure Flux to reconcile 
+the `Kustomization` and `HelmRelease` kinds by impersonating a service account
+from the namespace where these objects are created. In order to make the
+`spec.ServiceAccountName` field mandatory, you can use a validation webhook like
+[Kyverno](https://github.com/kyverno/kyverno) or [OPA Gatekeeper](https://github.com/open-policy-agent/gatekeeper).
+On cluster bootstrap, you need to configure Flux to deploy the validation webhook and its policies before 
+reconciling the tenants repositories.
+
 Inside the `clusters` dir we define in which order the infrastructure items,
 and the tenant workloads are going to be reconciled on the staging and production clusters:
 
@@ -164,7 +172,8 @@ spec:
       namespace: kyverno
 ```
 
-Then we setup cluster policies (Kyverno custom resources) to enforce tenant isolation:
+Then we setup [cluster policies](./infrastructure/kyverno-policies/flux-multi-tenancy.yaml) 
+(Kyverno custom resources) to enforce tenant isolation:
 
 ```yaml
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
