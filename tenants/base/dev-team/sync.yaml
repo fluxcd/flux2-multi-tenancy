@@ -15,6 +15,10 @@ metadata:
   name: dev-team
   namespace: apps
 spec:
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-gpg
   serviceAccountName: dev-team
   interval: 5m
   sourceRef:
