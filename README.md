@@ -253,7 +253,7 @@ and creates a deploy key with read-only access on GitHub, so it can pull changes
 Wait for the staging cluster reconciliation to finish:
 
 ```console
-$ watch flux get kustomization
+$ watch flux get kustomizations
 NAME            	READY  	MESSAGE                                                        	
 flux-system     	True   	Applied revision: main/616001c38e7bc81b00ef2c65ac8cfd58140155b8	
 kyverno         	Unknown	Reconciliation in progress
