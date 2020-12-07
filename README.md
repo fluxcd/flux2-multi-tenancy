@@ -97,6 +97,12 @@ flux create kustomization dev-team \
     --export >> ./tenants/base/dev-team/sync.yaml
 ```
 
+Create the base `kustomization.yaml` file:
+
+```sh
+cd ./tenants/base/dev-team/ && kustomize create --autodetect
+```
+
 Create the staging overlay and set the path to the staging dir inside the tenant repository:
 
 ```sh
@@ -284,3 +290,134 @@ $ watch flux -n apps get helmreleases
 NAME   	READY	MESSAGE                         	REVISION	SUSPENDED 
 podinfo	True 	Release reconciliation succeeded	5.0.3   	False 
 ```
+
+## Onboard tenants with private repositories
+
+You can configure Flux to connect to a tenant repository
+using SSH or token-based authentication. The tenant credentials will be stored 
+in the platform admin repository as a Kubernetes secret. 
+
+### Encrypt Kubernetes secrets in Git
+
+In order to store credentials safely in a Git repository, you can use Mozilla's
+SOPS CLI to encrypt Kubernetes secrets with OpenPGP or KMS.
+
+Install [gnupg](https://www.gnupg.org/) and [sops](https://github.com/mozilla/sops):
+
+```sh
+brew install gnupg sops
+```
+
+Generate a GPG key for Flux without specifying a passphrase and retrieve the GPG key ID:
+
+```console
+$ gpg --full-generate-key
+Email address: fluxcdbot@users.noreply.github.com
+
+$ gpg --list-secret-keys fluxcdbot@users.noreply.github.com
+sec   rsa3072 2020-09-06 [SC]
+      1F3D1CED2F865F5E59CA564553241F147E7C5FA4
+```
+
+Create a Kubernetes secret in the `flux-system` namespace with the GPG private key:
+
+```sh
+gpg --export-secret-keys \
+--armor 1F3D1CED2F865F5E59CA564553241F147E7C5FA4 |
+kubectl create secret generic sops-gpg \
+--namespace=flux-system \
+--from-file=sops.asc=/dev/stdin
+```
+
+You should store the GPG private key in a safe place for disaster recovery,
+in case you need to rebuild the cluster from scratch.
+The GPG public key can be shared with the platform team, so anyone with 
+write access to the platform repository can encrypt secrets.
+
+### Git over SSH
+
+Generate a Kubernetes secret with the SSH and known host keys:
+
+```sh
+flux -n apps create secret git dev-team-auth \
+    --url=ssh://git@github.com/<org>/<dev-team> \
+    --export > ./tenants/base/dev-team/auth.yaml
+```
+
+Print the SSH public key and add it as a read-only deploy key to the dev-team repository:
+
+```sh
+yq read git-auth.yaml 'data."identity.pub"' | base64 --decode
+```
+
+### Git over HTTP/S
+
+Generate a Kubernetes secret with basic auth credentials:
+
+```sh
+flux -n apps create secret git dev-team-auth \
+    --url=https://github.com/<org>/<dev-team> \
+    --username=$GITHUB_USERNAME \
+    --password=$GITHUB_TOKEN \
+    --export > ./tenants/base/dev-team/auth.yaml
+```
+
+The GitHub token must have read-only access to the dev-team repository.
+
+### Configure Git authentication
+
+Encrypt the `dev-team-auth` secret's data field with sops:
+
+```sh
+sops --encrypt \
+    --pgp=1F3D1CED2F865F5E59CA564553241F147E7C5FA4 \
+    --encrypted-regex '^(data|stringData)$' \
+    --in-place ./tenants/base/dev-team/auth.yaml
+```
+
+Create the sync manifests for the tenant Git repository referencing the `git-auth` secret:
+
+```sh
+flux create source git dev-team \
+    --namespace=apps \
+    --url=https://github.com/<org>/<dev-team> \
+    --branch=main \
+    --secret-ref=dev-team-auth \
+    --export > ./tenants/base/dev-team/sync.yaml
+
+flux create kustomization dev-team \
+    --namespace=apps \
+    --service-account=dev-team \
+    --source=GitRepository/dev-team \
+    --path="./" \
+    --export >> ./tenants/base/dev-team/sync.yaml
+```
+
+Create the base kustomization.yaml file:
+
+```sh
+cd ./tenants/base/dev-team/ && kustomize create --autodetect
+```
+
+Configure Flux to decrypt secrets using the `sops-gpg` key:
+
+```yaml
+flux create kustomization tenants \
+  --depends-on=kyverno-policies \
+  --source=flux-system \
+  --path="./tenants/staging" \
+  --prune=true \
+  --interval=5m \
+  --validation=client \
+  --decryption-provider=sops \
+  --decryption-secret=sops-gpg \
+  --export > ./clusters/staging/tenants.yaml
+```
+
+With the above configuration, the Flux instance running on the staging cluster will:
+
+* create the tenant namespace, service account and role binding
+* decrypt the tenant Git credentials using the GPG private key
+* create the tenant Git credentials Kubernetes secret in the tenant namespace
+* clone the tenant repository using the supplied credentials
+* apply the `./staging` directory from the tenant's repo using the tenant's service account
