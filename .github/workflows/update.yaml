@@ -1,0 +1,41 @@
+name: update
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  kyverno:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup tools
+        uses: ./.github/actions/tools
+      - name: Fetch latest version
+        id: version
+        run: |
+          REPO="https://github.com/kyverno/kyverno.git"
+          VERSION=$(cd /tmp && git ls-remote --tags --refs --sort='version:refname' ${REPO} | \
+          sed 's/.*\///' | \
+          awk '{ if ($1 ~ /-/) print; else print $0"_" ; }' | \
+          sort -rV | \
+          sed 's/_$//' | \
+          head -n1)
+          echo ::set-output name=NUMBER::${VERSION}
+      - name: Patch version
+        run: |
+          URL="https://raw.githubusercontent.com/kyverno/kyverno/${{ steps.version.outputs.NUMBER }}/definitions/release/install.yaml"
+          yq w -i ./infrastructure/kyverno/kustomization.yaml resources[0] ${URL}
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ secrets.BOT_GITHUB_TOKEN }}
+          branch: update-kyverno
+          committer: GitHub <noreply@github.com>
+          author: fluxcdbot <fluxcdbot@users.noreply.github.com>
+          commit-message: Update kyverno to ${{ steps.version.outputs.NUMBER }}
+          title: Update kyverno to ${{ steps.version.outputs.NUMBER }}
+          body: |
+            kyverno ${{ steps.version.outputs.NUMBER }}
