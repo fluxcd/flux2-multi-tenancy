@@ -45,3 +45,5 @@ jobs:
           kubectl -n flux-system logs deploy/source-controller
           kubectl -n flux-system logs deploy/kustomize-controller
           kubectl -n flux-system logs deploy/helm-controller
+          kubectl -n kyverno get all
+          kubectl -n kyverno logs deploy/kyverno
