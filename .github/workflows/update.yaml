@@ -35,6 +35,7 @@ jobs:
           branch: update-kyverno
           committer: GitHub <noreply@github.com>
           author: fluxcdbot <fluxcdbot@users.noreply.github.com>
+          signoff: true
           commit-message: Update kyverno to ${{ steps.version.outputs.NUMBER }}
           title: Update kyverno to ${{ steps.version.outputs.NUMBER }}
           body: |
