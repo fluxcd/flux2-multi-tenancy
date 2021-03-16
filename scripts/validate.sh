@@ -19,7 +19,7 @@ set -o errexit
 find . -type f -name '*.yaml' -print0 | while IFS= read -r -d $'\0' file;
   do
     echo "INFO - Validating $file"
-    yq validate -d'*' "$file"
+    yq e 'true' "$file" > /dev/null
 done
 
 k="kustomization.yaml"
