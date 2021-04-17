@@ -20,7 +20,7 @@ jobs:
       - name: Setup Kubernetes
         uses: engineerd/setup-kind@v0.5.0
       - name: Install Flux in Kubernetes Kind
-        run: flux install
+        run: flux install --log-level debug
       - name: Setup cluster reconciliation
         run: |
           flux create source git flux-system \
@@ -47,3 +47,5 @@ jobs:
           kubectl -n flux-system logs deploy/helm-controller
           kubectl -n kyverno get all
           kubectl -n kyverno logs deploy/kyverno
+          flux get sources all --all-namespaces
+          flux get ks --all-namespaces
