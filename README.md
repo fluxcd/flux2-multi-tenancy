@@ -249,7 +249,7 @@ Set the `--context` argument to the kubectl context to your staging cluster and 
 
 ```sh
 flux bootstrap github \
-    --context=staging \
+    --context=your-staging-context \
     --owner=${GITHUB_USER} \
     --repository=${GITHUB_REPO} \
     --branch=main \
