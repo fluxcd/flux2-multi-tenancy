@@ -30,6 +30,11 @@ spec:
           kinds:
             - Kustomization
             - HelmRelease
+      preconditions:
+        any:
+          - key: "{{request.object.spec.sourceRef.namespace}}"
+            operator: NotEquals
+            value: ""
       validate:
         message: "spec.sourceRef.namespace must be the same as metadata.namespace"
         deny:
