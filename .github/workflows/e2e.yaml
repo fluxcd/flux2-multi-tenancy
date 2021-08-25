@@ -17,22 +17,25 @@ jobs:
       - name: Setup Kubernetes
         uses: engineerd/setup-kind@v0.5.0
         with:
-          version: "v0.11.1"
+          version: v0.11.1
+          image: kindest/node:v1.22.0@sha256:b8bda84bb3a190e6e028b1760d277454a72267a5454b57db34437c34a588d047
       - name: Install Flux in Kubernetes Kind
         run: flux install --log-level debug
       - name: Setup cluster reconciliation
         run: |
           flux create source git flux-system \
+          --interval=15m \
           --url=${{ github.event.repository.html_url }} \
           --branch=${GITHUB_REF#refs/heads/}
           flux create kustomization flux-system \
+          --interval=15m \
           --source=flux-system \
           --path=./clusters/staging
       - name: Verify cluster reconciliation
         run: |
           kubectl -n flux-system wait kustomization/kyverno --for=condition=ready --timeout=1m
           kubectl -n flux-system wait kustomization/kyverno-policies --for=condition=ready --timeout=1m
-          kubectl -n flux-system wait kustomization/tenants --for=condition=ready --timeout=1m
+          kubectl -n flux-system wait kustomization/tenants --for=condition=ready --timeout=3m
       - name: Verify tenant reconciliation
         run: |
           kubectl -n apps wait kustomization/dev-team --for=condition=ready --timeout=1m
@@ -47,5 +50,7 @@ jobs:
           kubectl -n flux-system logs deploy/notification-controller
           kubectl -n kyverno get all
           kubectl -n kyverno logs deploy/kyverno
+          kubectl get clusterpolicy flux-multi-tenancy -oyaml
           flux get sources all --all-namespaces
           flux get ks --all-namespaces
+
