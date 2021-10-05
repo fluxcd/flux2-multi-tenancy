@@ -20,7 +20,7 @@ spec:
         pattern:
           spec:
             serviceAccountName: "?*"
-    - name: sourceRefNamespace
+    - name: kustomizationSourceRefNamespace
       exclude:
         resources:
           namespaces:
@@ -28,7 +28,6 @@ spec:
       match:
         resources:
           kinds:
-            - Kustomization
             - HelmRelease
       preconditions:
         any:
@@ -40,5 +39,26 @@ spec:
         deny:
           conditions:
             - key: "{{request.object.spec.sourceRef.namespace}}"
+              operator: NotEquals
+              value:  "{{request.object.metadata.namespace}}"
+    - name: helmReleaseSourceRefNamespace
+      exclude:
+        resources:
+          namespaces:
+            - flux-system
+      match:
+        resources:
+          kinds:
+            - HelmRelease
+      preconditions:
+        any:
+          - key: "{{request.object.spec.chart.spec.sourceRef.namespace}}"
+            operator: NotEquals
+            value: ""
+      validate:
+        message: "spec.chart.spec.sourceRef.namespace must be the same as metadata.namespace"
+        deny:
+          conditions:
+            - key: "{{request.object.spec.chart.spec.sourceRef.namespace}}"
               operator: NotEquals
               value:  "{{request.object.metadata.namespace}}"
