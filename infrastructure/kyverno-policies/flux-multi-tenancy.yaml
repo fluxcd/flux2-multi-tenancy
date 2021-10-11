@@ -28,7 +28,7 @@ spec:
       match:
         resources:
           kinds:
-            - HelmRelease
+            - Kustomization
       preconditions:
         any:
           - key: "{{request.object.spec.sourceRef.namespace}}"
