@@ -1,23 +1,19 @@
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
   name: kyverno
   namespace: flux-system
 spec:
-  interval: 10m
+  interval: 720m
   sourceRef:
     kind: GitRepository
     name: flux-system
   path: ./infrastructure/kyverno
   prune: true
-  validation: client
-  healthChecks:
-    - apiVersion: apps/v1
-      kind: Deployment
-      name: kyverno
-      namespace: kyverno
+  wait: true
+  timeout: 5m
 ---
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
   name: kyverno-policies
@@ -31,4 +27,3 @@ spec:
     name: flux-system
   path: ./infrastructure/kyverno-policies
   prune: true
-  validation: client

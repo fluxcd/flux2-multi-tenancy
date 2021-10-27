@@ -162,7 +162,7 @@ First we setup the reconciliation of custom resource definitions and their contr
 example we'll use [Kyverno](https://github.com/kyverno/kyverno):
 
 ```yaml
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
   name: kyverno
@@ -174,19 +174,15 @@ spec:
     name: flux-system
   path: ./infrastructure/kyverno
   prune: true
-  validation: client
-  healthChecks:
-    - apiVersion: apps/v1
-      kind: Deployment
-      name: kyverno
-      namespace: kyverno
+  wait: true
+  timeout: 5m
 ```
 
 Then we setup [cluster policies](./infrastructure/kyverno-policies/flux-multi-tenancy.yaml) 
 (Kyverno custom resources) to enforce tenant isolation:
 
 ```yaml
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
   name: kyverno-policies
@@ -200,7 +196,6 @@ spec:
     name: flux-system
   path: ./infrastructure/kyverno-policies
   prune: true
-  validation: client
 ```
 
 With `dependsOn` we tell Flux to install Kyverno before deploying the cluster policies.
@@ -208,7 +203,7 @@ With `dependsOn` we tell Flux to install Kyverno before deploying the cluster po
 And finally we setup the reconciliation for the tenants workloads with:
 
 ```yaml
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
   name: tenants
@@ -222,7 +217,6 @@ spec:
     name: flux-system
   path: ./tenants/staging
   prune: true
-  validation: client
 ```
 
 With the above configuration, we ensure that the Kyverno validation webhook will reject `Kustomizations` and 
