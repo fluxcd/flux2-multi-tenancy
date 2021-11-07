@@ -111,7 +111,7 @@ Create the staging overlay and set the path to the staging dir inside the tenant
 
 ```sh
 cat << EOF | tee ./tenants/staging/dev-team-patch.yaml
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
   name: dev-team
