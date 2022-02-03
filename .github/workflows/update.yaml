@@ -26,7 +26,7 @@ jobs:
           echo ::set-output name=NUMBER::${VERSION}
       - name: Patch version
         run: |
-          export URL="https://raw.githubusercontent.com/kyverno/kyverno/${{ steps.version.outputs.NUMBER }}/definitions/release/install.yaml"
+          export URL="https://raw.githubusercontent.com/kyverno/kyverno/${{ steps.version.outputs.NUMBER }}/config/release/install.yaml"
           yq e '.resources[0]=strenv(URL)' -i ./infrastructure/kyverno/kustomization.yaml
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
