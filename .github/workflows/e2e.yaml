@@ -1,6 +1,7 @@
 name: e2e
 
 on:
+  workflow_dispatch:
   push:
     branches: [ '*' ]
 
@@ -23,10 +24,21 @@ jobs:
         run: flux install --log-level debug
       - name: Setup cluster reconciliation
         run: |
-          flux create source git flux-system \
-          --interval=15m \
-          --url=${{ github.event.repository.html_url }} \
-          --branch=${GITHUB_REF#refs/heads/}
+          kubectl apply -f - <<EOF > cat
+          apiVersion: source.toolkit.fluxcd.io/v1beta1
+          kind: GitRepository
+          metadata:
+            name: flux-system
+            namespace: flux-system
+          spec:
+            interval: 15m
+            ref:
+              branch: ${GITHUB_REF#refs/heads/}
+            url: ${{ github.event.repository.html_url }}
+            ignore: |
+              /clusters/staging/flux-system/
+              /clusters/production/flux-system/
+          EOF
           flux create kustomization flux-system \
           --interval=15m \
           --source=flux-system \
@@ -53,4 +65,3 @@ jobs:
           kubectl get clusterpolicy flux-multi-tenancy -oyaml
           flux get sources all --all-namespaces
           flux get ks --all-namespaces
-
