@@ -8,6 +8,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
+  serviceAccountName: kustomize-controller
   path: ./infrastructure/kyverno
   prune: true
   wait: true
@@ -25,5 +26,6 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
+  serviceAccountName: kustomize-controller
   path: ./infrastructure/kyverno-policies
   prune: true
