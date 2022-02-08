@@ -10,4 +10,4 @@ spec:
     /*
     !/config/
   ref:
-    tag: "v1.6.0-rc3"
+    tag: "v1.6.0"
