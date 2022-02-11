@@ -285,7 +285,7 @@ behaviours. Below are a few consideration points, some of which are already impl
 
 Assuring the provenance of container images across a cluster can be achieved on several ways.
 
-The [verify-flux-images policy](infrastructure/kyverno-policies/flux-signature-verification.yaml) ensures that all Flux images used are the ones built and signed
+The [verify-flux-images policy](infrastructure/kyverno-policies/verify-flux-images.yaml) ensures that all Flux images used are the ones built and signed
 by the Flux team:
 
 ```yaml
