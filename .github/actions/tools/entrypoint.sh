@@ -4,7 +4,7 @@ set -eu
 
 YQ_VERSION="v4.6.1"
 KUSTOMIZE_VERSION="4.1.3"
-KUBEVAL_VERSION="v0.16.1"
+KUBECONFORM_VERSION="0.4.12"
 
 mkdir -p $GITHUB_WORKSPACE/bin
 cd $GITHUB_WORKSPACE/bin
@@ -19,10 +19,10 @@ tar xz
 
 chmod +x $GITHUB_WORKSPACE/bin/kustomize
 
-curl -sL https://github.com/instrumenta/kubeval/releases/download/${KUBEVAL_VERSION}/kubeval-linux-amd64.tar.gz | \
+curl -sL https://github.com/yannh/kubeconform/releases/download/v${KUBECONFORM_VERSION}/kubeconform-linux-amd64.tar.gz | \
 tar xz
 
-chmod +x $GITHUB_WORKSPACE/bin/kubeval
+chmod +x $GITHUB_WORKSPACE/bin/kubeconform
 
 echo "$GITHUB_WORKSPACE/bin" >> $GITHUB_PATH
 echo "$RUNNER_WORKSPACE/$(basename $GITHUB_REPOSITORY)/bin" >> $GITHUB_PATH
