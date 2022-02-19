@@ -5,9 +5,7 @@ metadata:
   namespace: apps
 spec:
   interval: 1m
-  url: https://github.com/fluxcd/flux2-multi-tenancy
-  ref:
-    branch: dev-team
+  url: https://github.com/mecsys/mecsys-dev-team
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
