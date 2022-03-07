@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # This script downloads the Flux OpenAPI schemas, then it validates the
-# Flux custom resources and the kustomize overlays using kubeval.
+# Flux custom resources and the kustomize overlays using kubeconform.
 # This script is meant to be run locally and in CI before the changes
 # are merged on the main branch that's synced by Flux.
 
@@ -26,7 +26,7 @@
 # Prerequisites
 # - yq v4.6
 # - kustomize v4.1
-# - kubeval v0.15
+# - kubeconform v0.4.12
 
 set -o errexit
 
