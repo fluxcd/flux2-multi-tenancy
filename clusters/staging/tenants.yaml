@@ -7,6 +7,7 @@ spec:
   dependsOn:
     - name: kyverno-policies
   interval: 5m
+  serviceAccountName: kustomize-controller
   sourceRef:
     kind: GitRepository
     name: flux-system
