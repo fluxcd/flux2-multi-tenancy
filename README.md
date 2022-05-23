@@ -96,7 +96,9 @@ flux bootstrap github \
 
 At this point flux cli will ask you for your `GITHUB_TOKEN` (a.k.a [Personal Access Token]).
 
-> **NOTE:** The `GITHUB_TOKEN` is used exclusively by the flux CLI during the bootstraping process, and does not leave your machine. The credential is used for configuring the GitHub repository and registering the deploy key.
+> **NOTE:** The `GITHUB_TOKEN` is used exclusively by the flux CLI during the bootstrapping process,
+> and does not leave your machine. The credential is used for
+> configuring the GitHub repository and registering the deploy key.
 
 
 The bootstrap command commits the manifests for the Flux components in `clusters/staging/flux-system` dir
@@ -126,7 +128,7 @@ Verify that the tenant Helm repository index has been downloaded:
 ```console
 $ flux -n apps get sources helm
 NAME   	READY	MESSAGE
-podinfo	True 	Fetched revision: 2020-10-28T10:09:58.648748663Z
+podinfo	True 	Fetched revision: 2022-05-23T10:09:58.648748663Z
 ```
 
 Wait for the demo app to be installed:
@@ -137,10 +139,9 @@ NAME   	READY	MESSAGE                         	REVISION	SUSPENDED
 podinfo	True 	Release reconciliation succeeded	5.0.3   	False 
 ```
 
-To expand on this example, check the [enforce tenant isolation](#-enforce-tenant-isolation) for security related considerations. 
+To expand on this example, check the [enforce tenant isolation](#enforce-tenant-isolation) for security related considerations. 
 
 [Personal Access Token]: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
-
 
 ### Onboard new tenants
 
@@ -230,12 +231,15 @@ at Control Plane level without the need of external admission controllers (e.g. 
 recommended patch:
 
 - Enforce controllers to block cross namespace references.
-- Sets a default service account via `--default-service-account` to `kustomize-controller` and `helm-controller`. Meaning that, if a tenant does not add a service account to a `Kustomization` or 
-`HelmRelease`, it would automatically default to said acccount. 
+- Sets a default service account via `--default-service-account` to `kustomize-controller` and `helm-controller`.
+  Meaning that, if a tenant does not specify a service account in a Flux `Kustomization` or 
+  `HelmRelease`, it would automatically default to said account. 
 
-> **NOTE:** It is recommended that the default service account has no privileges. And each named service account used observes the least privilege model.
+> **NOTE:** It is recommended that the default service account has no privileges.
+> And each named service account used observes the least privilege model.
 
-This repository applies this patch automatically via [kustomization.yaml](clusters/production/flux-system/kustomization.yaml) in both clusters.
+This repository applies this patch automatically via
+[kustomization.yaml](clusters/production/flux-system/kustomization.yaml) in both clusters.
 
 ```yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
@@ -285,8 +289,8 @@ behaviours. Below are a few consideration points, some of which are already impl
 
 Assuring the provenance of container images across a cluster can be achieved on several ways.
 
-The [verify-flux-images policy](infrastructure/kyverno-policies/verify-flux-images.yaml) ensures that all Flux images used are the ones built and signed
-by the Flux team:
+The [verify-flux-images policy](infrastructure/kyverno-policies/verify-flux-images.yaml)
+ensures that all Flux images used are the ones built and signed by the Flux team:
 
 ```yaml
 apiVersion: kyverno.io/v1
@@ -313,14 +317,14 @@ spec:
 ```
 
 Other policies to explore:
-- Restrict what repositories can be accessed in each cluster. Some deployments may need this 
-to be environment-specific.
+- Restrict what repositories can be accessed in each cluster. Some deployments may need this to be environment-specific.
 - Align image policies with pods that require `securityContext` that are highly privileged.
 
 #### Flux Sources
 
 Flux uses sources to define the origin of flux manifests. Some deployments may require that 
-all of them come from a specific Github Organisation, as the [verify-git-repositories policy](infrastructure/kyverno-policies/verify-git-repositories.yaml) shows:
+all of them come from a specific GitHub Organisation, as the
+[verify-git-repositories policy](infrastructure/kyverno-policies/verify-git-repositories.yaml) shows:
 
 ```yaml
 apiVersion: kyverno.io/v1
@@ -350,7 +354,7 @@ spec:
 
 Other policies to explore:
 - Expand the policies to `HelmRepository` and `Bucket`.
-- For `HelmRepository` and `GitRepository` consider which protocols should allowed.
+- For `HelmRepository` and `GitRepository` consider which protocols should be allowed.
 - For `Bucket`, consider restrictions on providers and regions.
 
 
@@ -363,9 +367,9 @@ If the recommended best practices above are followed, such instances won't be ab
 a cluster as the default service account has no permissions to do so. 
 
 An additional extra could be taken to make the `spec.ServiceAccountName` field  mandatory via a validation 
-webhook, for example [Kyverno](https://github.com/kyverno/kyverno) or [OPA Gatekeeper](https://github.com/open-policy-agent/gatekeeper). Resulting on `Kustomization` and `HelmRelease` instances
-not being admitted when `spec.ServiceAccountName` is not set.
-
+webhook, for example [Kyverno](https://github.com/kyverno/kyverno) or
+[OPA Gatekeeper](https://github.com/open-policy-agent/gatekeeper).
+Resulting on `Kustomization` and `HelmRelease` instances not being admitted when `spec.ServiceAccountName` is not set.
 
 #### Reconciliation hierarchy
 
@@ -405,8 +409,8 @@ spec:
   timeout: 5m
 ```
 
-Then we setup [cluster policies](./infrastructure/kyverno-policies/flux-multi-tenancy.yaml) 
-(Kyverno custom resources) to enforce tenant isolation:
+Then we setup [cluster policies](./infrastructure/kyverno-policies/verify-git-repositories.yaml) 
+(Kyverno custom resources) to enforce a specific GitHub Organisation:
 
 ```yaml
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
@@ -446,8 +450,8 @@ spec:
   prune: true
 ```
 
-With the above configuration, we ensure that the Kyverno validation webhook will reject `Kustomizations` and 
-`HelmReleases` that don't specify a service account name when deployed in a tenant's namespace.
+With the above configuration, we ensure that the Kyverno validation webhook will reject `GitRepository`
+that don't originate from a specific GitHub Organisation, in our case `fluxcd`.
 
 ## Onboard tenants with private repositories
 
@@ -458,7 +462,7 @@ in the platform admin repository as a Kubernetes secret.
 ### Encrypt Kubernetes secrets in Git
 
 In order to store credentials safely in a Git repository, you can use Mozilla's
-SOPS CLI to encrypt Kubernetes secrets with OpenPGP or KMS.
+SOPS CLI to encrypt Kubernetes secrets with OpenPGP, Age or KMS.
 
 Install [gnupg](https://www.gnupg.org/) and [sops](https://github.com/mozilla/sops):
 
@@ -505,7 +509,7 @@ flux -n apps create secret git dev-team-auth \
 Print the SSH public key and add it as a read-only deploy key to the dev-team repository:
 
 ```sh
-yq read git-auth.yaml 'data."identity.pub"' | base64 --decode
+yq eval 'data."identity.pub"' git-auth.yaml | base64 --decode
 ```
 
 ### Git over HTTP/S
@@ -587,8 +591,10 @@ a pull request is merged into the main branch and synced on the cluster.
 
 This repository contains the following GitHub CI workflows:
 
-* the [test](./.github/workflows/test.yaml) workflow validates the Kubernetes manifests and Kustomize overlays with [kubeconform](https://github.com/yannh/kubeconform)
-* the [e2e](./.github/workflows/e2e.yaml) workflow starts a Kubernetes cluster in CI and tests the staging setup by running Flux in Kubernetes Kind
+* the [test](./.github/workflows/test.yaml) workflow validates the Kubernetes manifests
+  and Kustomize overlays with [kubeconform](https://github.com/yannh/kubeconform)
+* the [e2e](./.github/workflows/e2e.yaml) workflow starts a Kubernetes cluster in CI
+  and tests the staging setup by running Flux in Kubernetes Kind
 
 
 [Flux v0.26]: https://github.com/fluxcd/flux2/releases/tag/v0.26.0

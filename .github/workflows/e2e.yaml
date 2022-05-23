@@ -39,6 +39,9 @@ jobs:
               /clusters/staging/flux-system/
               /clusters/production/flux-system/
           EOF
+          
+          kubectl -n flux-system wait gitrepository/flux-system --for=condition=ready --timeout=1m
+          
           flux create kustomization flux-system \
           --interval=15m \
           --source=flux-system \
