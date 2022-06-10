@@ -24,24 +24,12 @@ jobs:
         run: flux install --log-level debug
       - name: Setup cluster reconciliation
         run: |
-          kubectl apply -f - <<EOF > cat
-          apiVersion: source.toolkit.fluxcd.io/v1beta2
-          kind: GitRepository
-          metadata:
-            name: flux-system
-            namespace: flux-system
-          spec:
-            interval: 15m
-            ref:
-              branch: ${GITHUB_REF#refs/heads/}
-            url: ${{ github.event.repository.html_url }}
-            ignore: |
-              /clusters/staging/flux-system/
-              /clusters/production/flux-system/
-          EOF
-          
-          kubectl -n flux-system wait gitrepository/flux-system --for=condition=ready --timeout=1m
-          
+          flux create source git flux-system \
+          --interval=15m \
+          --url=${{ github.event.repository.html_url }} \
+          --branch=${GITHUB_REF#refs/heads/} \
+          --ignore-paths="./clusters/**/flux-system/"
+
           flux create kustomization flux-system \
           --interval=15m \
           --source=flux-system \
