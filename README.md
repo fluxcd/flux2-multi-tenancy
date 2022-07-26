@@ -278,7 +278,7 @@ service account in the tenant namespace when applying changes to the cluster. Th
 exist in all namespaces and should always be kept without any privileges.
 
 To enable a tenant to operate, a service account must be created with the required permissions and its name set 
-to the `spec.serviceAccountName` of all `Kustomize` and `HelmRelease` the tenant has.
+to the `spec.serviceAccountName` of all `Kustomization` and `HelmRelease` resources the tenant has.
 
 ### Tenancy policies
 
