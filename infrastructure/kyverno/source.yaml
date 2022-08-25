@@ -10,4 +10,4 @@ spec:
     /*
     !/config/
   ref:
-    tag: "v1.7.2"
+    tag: "v1.7.3"
