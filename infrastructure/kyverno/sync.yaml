@@ -6,10 +6,10 @@ metadata:
 spec:
   interval: 720m0s
   sourceRef:
-    kind: GitRepository
+    kind: OCIRepository
     name: kyverno-controller
   serviceAccountName: kustomize-controller
-  path: ./config/release
+  path: ./
   prune: true
   wait: true
   timeout: 5m
