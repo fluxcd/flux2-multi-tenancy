@@ -18,8 +18,8 @@ jobs:
       - name: Setup Kubernetes
         uses: engineerd/setup-kind@v0.5.0
         with:
-          version: v0.11.1
-          image: kindest/node:v1.22.0@sha256:b8bda84bb3a190e6e028b1760d277454a72267a5454b57db34437c34a588d047
+          version: v0.16.0
+          image: kindest/node:v1.23.12@sha256:9402cf1330bbd3a0d097d2033fa489b2abe40d479cc5ef47d0b6a6960613148a
       - name: Install Flux in Kubernetes Kind
         run: flux install --log-level debug
       - name: Setup cluster reconciliation
@@ -36,9 +36,9 @@ jobs:
           --path=./clusters/staging
       - name: Verify cluster reconciliation
         run: |
-          kubectl -n flux-system wait kustomization/kyverno --for=condition=ready --timeout=1m
-          kubectl -n flux-system wait kustomization/kyverno-controller --for=condition=ready --timeout=1m
-          kubectl -n flux-system wait kustomization/kyverno-policies --for=condition=ready --timeout=1m
+          kubectl -n flux-system wait kustomization/kyverno --for=condition=ready --timeout=5m
+          kubectl -n flux-system wait kustomization/kyverno-controller --for=condition=ready --timeout=3m
+          kubectl -n flux-system wait kustomization/kyverno-policies --for=condition=ready --timeout=3m
           kubectl -n flux-system wait kustomization/tenants --for=condition=ready --timeout=3m
       - name: Verify tenant reconciliation
         run: |
@@ -56,7 +56,8 @@ jobs:
           kubectl -n flux-system logs deploy/helm-controller
           kubectl -n flux-system logs deploy/notification-controller
           kubectl -n kyverno get all
+          kubectl -n kyverno describe po 
           kubectl -n kyverno logs deploy/kyverno
-          kubectl get clusterpolicy flux-multi-tenancy -oyaml
+          kubectl get clusterpolicies.kyverno.io -oyaml
           flux get sources all --all-namespaces
           flux get ks --all-namespaces
