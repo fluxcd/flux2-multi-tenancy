@@ -8,6 +8,6 @@ spec:
   provider: generic
   url: oci://ghcr.io/kyverno/manifests/kyverno
   ref:
-    tag: "v1.8.4"
+    tag: "v1.8.5"
   verify:
     provider: cosign
