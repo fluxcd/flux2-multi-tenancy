@@ -65,7 +65,6 @@ A [tenant repository](https://github.com/fluxcd/flux2-multi-tenancy/tree/dev-tea
     └── podinfo-values.yaml
 ```
 
-
 ## Bootstrap the staging cluster
 
 Install the Flux CLI and fork this repository on your personal GitHub account
@@ -99,7 +98,6 @@ At this point flux cli will ask you for your `GITHUB_TOKEN` (a.k.a [Personal Acc
 > **NOTE:** The `GITHUB_TOKEN` is used exclusively by the flux CLI during the bootstrapping process,
 > and does not leave your machine. The credential is used for
 > configuring the GitHub repository and registering the deploy key.
-
 
 The bootstrap command commits the manifests for the Flux components in `clusters/staging/flux-system` dir
 and creates a deploy key with read-only access on GitHub, so it can pull changes inside the cluster.
@@ -189,7 +187,7 @@ Create the staging overlay and set the path to the staging dir inside the tenant
 
 ```sh
 cat << EOF | tee ./tenants/staging/dev-team-patch.yaml
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: dev-team
@@ -393,7 +391,7 @@ First we setup the reconciliation of custom resource definitions and their contr
 example we'll use [Kyverno](https://github.com/kyverno/kyverno):
 
 ```yaml
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: kyverno
@@ -413,7 +411,7 @@ Then we setup [cluster policies](./infrastructure/kyverno-policies/verify-git-re
 (Kyverno custom resources) to enforce a specific GitHub Organisation:
 
 ```yaml
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: kyverno-policies
@@ -434,7 +432,7 @@ With `dependsOn` we tell Flux to install Kyverno before deploying the cluster po
 And finally we setup the reconciliation for the tenants workloads with:
 
 ```yaml
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: tenants
