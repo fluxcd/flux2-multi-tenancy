@@ -10,16 +10,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
-      - name: Setup tools
-        uses: ./.github/actions/tools
+        uses: actions/checkout@v3
       - name: Setup Flux
         uses: fluxcd/flux2/action@main
       - name: Setup Kubernetes
-        uses: engineerd/setup-kind@v0.5.0
+        uses: helm/kind-action@v1.7.0
         with:
-          version: v0.16.0
-          image: kindest/node:v1.23.12@sha256:9402cf1330bbd3a0d097d2033fa489b2abe40d479cc5ef47d0b6a6960613148a
+          cluster_name: flux
       - name: Install Flux in Kubernetes Kind
         run: flux install --log-level debug
       - name: Setup cluster reconciliation
@@ -47,17 +44,14 @@ jobs:
       - name: List reconciliations
         run: |
           flux get all --all-namespaces
-      - name: Debug failure
-        if: failure()
+      - name: Logs
+        if: always()
         run: |
           kubectl -n flux-system get all
-          kubectl -n flux-system logs deploy/source-controller
-          kubectl -n flux-system logs deploy/kustomize-controller
-          kubectl -n flux-system logs deploy/helm-controller
-          kubectl -n flux-system logs deploy/notification-controller
+          kubectl -n flux-system logs -l app.kubernetes.io/part-of=flux
           kubectl -n kyverno get all
           kubectl -n kyverno describe po 
-          kubectl -n kyverno logs deploy/kyverno
+          kubectl -n kyverno logs -l app.kubernetes.io/part-of=kyverno
           kubectl get clusterpolicies.kyverno.io -oyaml
           flux get sources all --all-namespaces
           flux get ks --all-namespaces

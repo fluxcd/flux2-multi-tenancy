@@ -201,8 +201,8 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ../base/dev-team
-patchesStrategicMerge:
-  - dev-team-patch.yaml
+patches:
+  - path: dev-team-patch.yaml
 EOF
 ```
 
@@ -307,11 +307,18 @@ spec:
           kinds:
             - Pod
       verifyImages:
-      - image: "ghcr.io/fluxcd/helm-controller:*"
-        repository: "ghcr.io/fluxcd/helm-controller"
-        roots: |
-          -----BEGIN CERTIFICATE-----
-          ...
+        - imageReferences:
+            - "ghcr.io/fluxcd/source-controller:*"
+            - "ghcr.io/fluxcd/kustomize-controller:*"
+            - "ghcr.io/fluxcd/helm-controller:*"
+            - "ghcr.io/fluxcd/notification-controller:*"
+          attestors:
+            - entries:
+                - keyless:
+                    subject: "https://github.com/fluxcd/*"
+                    issuer: "https://token.actions.githubusercontent.com"
+                    rekor:
+                      url: https://rekor.sigstore.dev
 ```
 
 Other policies to explore:
