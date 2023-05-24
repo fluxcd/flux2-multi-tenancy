@@ -48,7 +48,8 @@ jobs:
         if: always()
         run: |
           kubectl -n flux-system get all
-          kubectl -n flux-system logs -l app.kubernetes.io/part-of=flux
+          kubectl -n flux-system logs deploy/source-controller
+          kubectl -n flux-system logs deploy/kustomize-controller
           kubectl -n kyverno get all
           kubectl -n kyverno describe po 
           kubectl -n kyverno logs -l app.kubernetes.io/part-of=kyverno
