@@ -10,9 +10,10 @@ spec:
   rules:
     - name: verify-cosign-signature
       match:
-        resources:
-          kinds:
-            - Pod
+        any:
+        - resources:
+            kinds:
+              - Pod
       verifyImages:
         - imageReferences:
             - "ghcr.io/fluxcd/source-controller:*"

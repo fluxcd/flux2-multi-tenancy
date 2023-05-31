@@ -14,9 +14,10 @@ spec:
           namespaces:
             - flux-system
       match:
-        resources:
-          kinds:
-            - GitRepository
+        any:
+        - resources:
+            kinds:
+              - GitRepository
       validate:
         message: ".spec.url must be from a repository within the organisation X"
         anyPattern:
