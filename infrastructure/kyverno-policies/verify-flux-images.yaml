@@ -3,7 +3,7 @@ kind: ClusterPolicy
 metadata:
   name: verify-flux-images
 spec:
-  validationFailureAction: enforce
+  validationFailureAction: Audit
   background: false
   webhookTimeoutSeconds: 30
   failurePolicy: Fail
