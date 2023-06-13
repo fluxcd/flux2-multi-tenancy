@@ -6,7 +6,7 @@ spec:
   # This provides users a working example of how an admin
   # would be able to enforce git repository sources across
   # all tenants.
-  validationFailureAction: audit # Change to 'enforce' once the specific org url is set.
+  validationFailureAction: Audit # Change to 'Enforce' once the specific org url is set.
   rules:
     - name: github-repositories-only
       exclude:
