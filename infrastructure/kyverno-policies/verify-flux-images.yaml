@@ -3,7 +3,7 @@ kind: ClusterPolicy
 metadata:
   name: verify-flux-images
 spec:
-  validationFailureAction: enforce
+  validationFailureAction: Audit
   background: false
   webhookTimeoutSeconds: 30
   failurePolicy: Fail
@@ -28,6 +28,7 @@ spec:
             - "docker.io/fluxcd/notification-controller:*"
             - "docker.io/fluxcd/image-reflector-controller:*"
             - "docker.io/fluxcd/image-automation-controller:*"
+          mutateDigest: false
           attestors:
             - entries:
                 - keyless:
