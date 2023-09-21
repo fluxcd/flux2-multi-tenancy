@@ -603,4 +603,4 @@ This repository contains the following GitHub CI workflows:
 
 
 [Flux v0.26]: https://github.com/fluxcd/flux2/releases/tag/v0.26.0
-[multi-tenancy lockdown]: https://fluxcd.io/flux/installation/#multi-tenancy-lockdown
+[multi-tenancy lockdown]: https://fluxcd.io/flux/installation/configuration/multitenancy/
