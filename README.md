@@ -180,7 +180,7 @@ flux create kustomization dev-team \
 Create the base `kustomization.yaml` file:
 
 ```sh
-cd ./tenants/base/dev-team/ && kustomize create --autodetect
+cd ./tenants/base/dev-team/ && kustomize create --autodetect --namespace apps 
 ```
 
 Create the staging overlay and set the path to the staging dir inside the tenant repository:
@@ -199,6 +199,7 @@ EOF
 cat << EOF | tee ./tenants/staging/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+namespace: apps
 resources:
   - ../base/dev-team
 patches:
