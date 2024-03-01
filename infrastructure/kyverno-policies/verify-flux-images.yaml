@@ -29,6 +29,7 @@ spec:
             - "docker.io/fluxcd/image-reflector-controller:*"
             - "docker.io/fluxcd/image-automation-controller:*"
           mutateDigest: false
+          verifyDigest: false
           attestors:
             - entries:
                 - keyless:

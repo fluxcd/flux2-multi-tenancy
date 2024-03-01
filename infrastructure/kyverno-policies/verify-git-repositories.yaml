@@ -9,19 +9,18 @@ spec:
   validationFailureAction: Audit # Change to 'Enforce' once the specific org url is set.
   rules:
     - name: github-repositories-only
-      exclude:
-        resources:
-          namespaces:
-            - flux-system
       match:
         any:
         - resources:
             kinds:
               - GitRepository
+      exclude:
+        any:
+        - resources:
+            namespaces:
+              - flux-system
       validate:
         message: ".spec.url must be from a repository within the organisation X"
-        anyPattern:
-        - spec:
-            url: "https://github.com/fluxcd/?*" # repositories in fluxcd via https
-        - spec:
-            url: "ssh://git@github.com:fluxcd/?*" # repositories in fluxcd via ssh
+        pattern:
+          spec:
+            url: https://github.com/fluxcd/?* | ssh://git@github.com:fluxcd/?*
