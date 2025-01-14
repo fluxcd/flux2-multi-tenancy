@@ -524,7 +524,7 @@ flux -n apps create secret git dev-team-auth \
 Print the SSH public key and add it as a read-only deploy key to the dev-team repository:
 
 ```sh
-yq eval 'data."identity.pub"' git-auth.yaml | base64 --decode
+yq eval '.stringData."identity.pub"' ./tenants/base/dev-team/auth.yaml
 ```
 
 ### Git over HTTP/S
