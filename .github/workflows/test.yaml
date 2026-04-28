@@ -1,22 +1,32 @@
 name: test
 
 on:
-  pull_request:
+  workflow_dispatch:
   push:
-    branches:
-      - 'main'
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
   manifests:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
-      - name: Setup yq
-        uses: fluxcd/pkg/actions/yq@main
-      - name: Setup kubeconform
-        uses: fluxcd/pkg/actions/kubeconform@main
-      - name: Setup kustomize
-        uses: fluxcd/pkg/actions/kustomize@main
+        uses: actions/checkout@v6
+      - name: Setup Flux CLI
+        uses: fluxcd/flux2/action@main
+      - name: Setup Flux Schema CLI
+        uses: fluxcd/flux-schema/actions/setup@main
       - name: Validate manifests
-        run: ./scripts/validate.sh
+        uses: fluxcd/flux-schema/actions/validate@main
+        with:
+          path: '.'
+          config: '.fluxschema.yml'
+      - name: Validate API versions
+        run: |
+          flux migrate -f . --yes
+          if [[ $(git diff --stat) != '' ]]; then
+            git --no-pager diff
+            echo 'deprecated API versions found, run flux migrate and commit changes'
+            exit 1
+          fi
