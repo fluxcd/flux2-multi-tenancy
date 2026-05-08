@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: flux-tenant-sources-allowlist
+  namespace: flux-system
+data:
+  allowedPrefixes: |
+    https://github.com/fluxcd/
+    oci://ghcr.io/fluxcd/
+    https://github.com/stefanprodan/
+    https://stefanprodan.github.io/
+    oci://ghcr.io/stefanprodan/

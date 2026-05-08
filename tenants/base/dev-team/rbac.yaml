@@ -5,31 +5,30 @@ metadata:
   labels:
     toolkit.fluxcd.io/tenant: dev-team
   name: apps
-
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   labels:
     toolkit.fluxcd.io/tenant: dev-team
-  name: dev-team
+  name: flux
   namespace: apps
-
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   labels:
     toolkit.fluxcd.io/tenant: dev-team
-  name: gotk-reconciler
+  name: dev-team-reconciler
   namespace: apps
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: cluster-admin
 subjects:
-- kind: User
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
   name: gotk:apps:reconciler
 - kind: ServiceAccount
-  name: dev-team
+  name: flux
   namespace: apps

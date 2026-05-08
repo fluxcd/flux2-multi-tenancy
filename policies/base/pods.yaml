@@ -1,0 +1,36 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: flux-tenant-pods
+  annotations:
+    policy.toolkit.fluxcd.io/description: |
+      Deny pods from running under the Flux ServiceAccount,
+      to prevent privilege escalation to namespace admin for tenant workloads.
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups:   [""]
+        apiVersions: ["v1"]
+        operations:  ["CREATE", "UPDATE"]
+        resources:   ["pods"]
+  validations:
+    - expression: "object.spec.serviceAccountName != 'flux'"
+      message: "pods in tenant namespaces cannot run under the 'flux' ServiceAccount"
+      reason: Forbidden
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: flux-tenant-pods
+  annotations:
+    policy.toolkit.fluxcd.io/description: |
+      Bind the Flux SA pod restriction policy to all tenant namespaces.
+spec:
+  policyName: flux-tenant-pods
+  validationActions: [Deny, Audit]
+  matchResources:
+    namespaceSelector:
+      matchExpressions:
+        - key: toolkit.fluxcd.io/tenant
+          operator: Exists

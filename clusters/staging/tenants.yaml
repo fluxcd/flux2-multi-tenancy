@@ -4,12 +4,13 @@ metadata:
   name: tenants
   namespace: flux-system
 spec:
-  dependsOn:
-    - name: kyverno-policies
-  interval: 5m
   serviceAccountName: kustomize-controller
+  dependsOn:
+    - name: policies
   sourceRef:
     kind: GitRepository
     name: flux-system
   path: ./tenants/staging
   prune: true
+  interval: 1h
+  timeout: 5m

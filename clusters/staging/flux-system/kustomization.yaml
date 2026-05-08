@@ -21,7 +21,7 @@ patches:
   - patch: |
       - op: add
         path: /spec/template/spec/containers/0/args/-
-        value: --default-service-account=default
+        value: --default-service-account=flux
     target:
       kind: Deployment
       name: "(kustomize-controller|helm-controller)"
