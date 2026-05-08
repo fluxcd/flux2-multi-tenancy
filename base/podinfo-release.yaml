@@ -4,7 +4,6 @@ metadata:
   name: podinfo
   namespace: apps
 spec:
-  serviceAccountName: dev-team
   releaseName: podinfo
   chart:
     spec:
@@ -12,4 +11,8 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: podinfo
-  interval: 5m
+  interval: 1h
+  upgrade:
+    strategy:
+      name: RetryOnFailure
+      retryInterval: 5m
