@@ -1,0 +1,56 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: flux-tenant-sources
+  annotations:
+    policy.toolkit.fluxcd.io/description: |
+      Restrict Flux access to Git, OCI and Helm repositories,
+      based on an allowlist ConfigMap stored in the flux-system namespace.
+spec:
+  failurePolicy: Fail
+  paramKind:
+    apiVersion: v1
+    kind: ConfigMap
+  matchConstraints:
+    resourceRules:
+      - apiGroups:   ["source.toolkit.fluxcd.io"]
+        apiVersions: ["v1"]
+        operations:  ["CREATE", "UPDATE"]
+        resources:
+          - gitrepositories
+          - ocirepositories
+          - helmrepositories
+      - apiGroups:   ["image.toolkit.fluxcd.io"]
+        apiVersions: ["*"]
+        operations:  ["CREATE", "UPDATE"]
+        resources:
+          - imagerepositories
+  variables:
+    - name: prefixes
+      expression: "params.data['allowedPrefixes'].split('\\n').filter(p, p != '')"
+    - name: url
+      expression: "has(object.spec.url) ? object.spec.url : 'oci://' + object.spec.image"
+  validations:
+    - expression: "variables.prefixes.exists(p, variables.url.startsWith(p))"
+      messageExpression: "'spec.url \"' + variables.url + '\" is not allowed. Permitted prefixes: ' + variables.prefixes.join(', ')"
+      reason: Forbidden
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: flux-tenant-sources
+  annotations:
+    policy.toolkit.fluxcd.io/description: |
+      Bind the Flux source allowlist policy to all tenant namespaces.
+spec:
+  policyName: flux-tenant-sources
+  validationActions: [Deny, Audit]
+  paramRef:
+    name: flux-tenant-sources-allowlist
+    namespace: flux-system
+    parameterNotFoundAction: Deny
+  matchResources:
+    namespaceSelector:
+      matchExpressions:
+        - key: toolkit.fluxcd.io/tenant
+          operator: Exists

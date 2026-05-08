@@ -4,4 +4,9 @@ namespace: apps
 resources:
   - ../base/dev-team
 patches:
-  - path: dev-team-patch.yaml
+  - target:
+      kind: Kustomization
+    patch: |
+      - op: add
+        path: /spec/path
+        value: ./production

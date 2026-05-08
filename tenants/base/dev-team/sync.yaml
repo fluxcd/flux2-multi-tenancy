@@ -15,11 +15,10 @@ metadata:
   name: dev-team
   namespace: apps
 spec:
-  serviceAccountName: dev-team
+  serviceAccountName: flux
   interval: 5m
   sourceRef:
     kind: GitRepository
     name: dev-team
   prune: true
-
 

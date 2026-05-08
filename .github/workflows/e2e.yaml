@@ -18,7 +18,7 @@ jobs:
         with:
           cluster_name: flux
       - name: Install Flux in Kubernetes Kind
-        run: flux install --log-level debug
+        run: flux install --components-extra=source-watcher
       - name: Setup cluster reconciliation
         run: |
           flux create source git flux-system \
@@ -33,26 +33,20 @@ jobs:
           --path=./clusters/staging
       - name: Verify cluster reconciliation
         run: |
-          kubectl -n flux-system wait kustomization/kyverno --for=condition=ready --timeout=5m
-          kubectl -n flux-system wait kustomization/kyverno-controller --for=condition=ready --timeout=3m
-          kubectl -n flux-system wait kustomization/kyverno-policies --for=condition=ready --timeout=3m
+          kubectl -n flux-system wait kustomization/policies --for=condition=ready --timeout=5m
           kubectl -n flux-system wait kustomization/tenants --for=condition=ready --timeout=3m
       - name: Verify tenant reconciliation
         run: |
           kubectl -n apps wait kustomization/dev-team --for=condition=ready --timeout=1m
           kubectl -n apps wait helmrelease/podinfo --for=condition=ready --timeout=1m
-      - name: List reconciliations
+      - name: List managed resources
         run: |
-          flux get all --all-namespaces
+          flux tree ks flux-system
       - name: Logs
         if: always()
         run: |
           kubectl -n flux-system get all
           kubectl -n flux-system logs deploy/source-controller
           kubectl -n flux-system logs deploy/kustomize-controller
-          kubectl -n kyverno get all
-          kubectl -n kyverno describe po 
-          kubectl -n kyverno logs -l app.kubernetes.io/part-of=kyverno
-          kubectl get clusterpolicies.kyverno.io -oyaml
-          flux get sources all --all-namespaces
-          flux get ks --all-namespaces
+          kubectl -n flux-system logs deploy/helm-controller
+          flux get all -A

@@ -1,15 +1,15 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: kyverno-controller
+  name: policies
   namespace: flux-system
 spec:
-  interval: 720m0s
-  sourceRef:
-    kind: OCIRepository
-    name: kyverno-controller
   serviceAccountName: kustomize-controller
-  path: ./
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./policies/production
   prune: true
   wait: true
-  timeout: 5m
+  interval: 1h
+  timeout: 2m
